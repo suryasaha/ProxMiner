@@ -1,0 +1,121 @@
+#!/usr/bin/perl -w
+# MGEL
+# Surya Saha 4/01/07
+# reading cmd line noise itemsets and real itemsets,
+# writing out the real itemsets along with the with 
+# occurences = occurences - random occurences
+# NOTE: If noise>real occurences, then a 0 is recorded
+
+
+use strict;
+use warnings;
+use POSIX;
+
+unless (@ARGV == 2){
+	print "USAGE: $0 <input real f_itemsets file> <input noise f_itemsets file> \n";
+	exit;
+}
+
+
+my ($ifname,$rec,@temp,@merged_table,@real_table,@noise_table,
+%noise_hash,%temphash,$ctr,$i,$j);
+
+$ifname=$ARGV[0];
+chomp $ifname;
+unless(open(INFILEREALDATA,$ifname)){print "not able to open ".$ifname."\n\n";exit;}
+
+$ifname=$ARGV[1];
+chomp $ifname;
+unless(open(INFILENOISEDATA,$ifname)){print "not able to open ".$ifname."\n\n";exit;}
+
+
+unless(open(OUTFILEDATA,">$ifname.merged.itemsets.tab")){print "not able to open ".$ifname."merged.itemsets.tab \n\n";exit;}
+
+
+#slurping in the whole real itemset file
+while($rec=<INFILEREALDATA>){
+	if($rec =~ /#/){next;}
+	if(length ($rec) < 10){next;}#for avoiding last line
+	push @real_table, [split(' ',$rec)];
+}
+
+#slurping in the whole noise itemset file
+while($rec=<INFILENOISEDATA>){
+	if($rec =~ /#/){next;}
+	if(length ($rec) < 10){next;}#for avoiding last line
+# 	print STDERR length ($rec),' ';
+	push @noise_table, [split(' ',$rec)];
+}
+
+#fam1, fam1-count, fam1-avglen, fam2, fam2-count, fam2-avglen, Occurence, Category
+#R=133	334	493	R=133	334	493	884	3
+#0	1	2	3	4	5	6	7
+
+# put the noise data into a hash
+foreach (@noise_table){
+	#key is fam1.fam2.category
+	#value is the occurence by chance (noise)
+# 	if (!exists $_->[0]){ print "\n 0 not defined";}
+# 	if (!exists $_->[3]){ print "\n 3 not defined";}
+# 	if (!exists $_->[6]){ print "\n 6 not defined, : $_->[0] $_->[1] $_->[2] $_->[3] $_->[4] $_->[5]";}
+# 	if (!exists $_->[7]){ print "\n 7 not defined";} 
+	
+	$noise_hash{"$_->[0] $_->[3] $_->[7]"} = "$_->[6]";
+}
+
+
+#printing the merged file
+
+$ctr=0;
+foreach $i (@real_table){
+	#get the noise data
+	#check if the relation even exists
+	if (exists $noise_hash{"$i->[0] $i->[3] $i->[7]"}){
+		$j = $noise_hash{"$i->[0] $i->[3] $i->[7]"};
+	}
+	else{
+		$j=0;
+	}
+	
+#	push @merged_table , ($i->[0],$i->[1],$i->[2],$i->[3],$i->[4],
+#	$i->[5],$i->[6],$j,,$i->[6]-$j,,$i->[7]);
+
+	$merged_table[$ctr][0] = $i->[0];
+	$merged_table[$ctr][1] = $i->[1];
+	$merged_table[$ctr][2] = $i->[2];
+	$merged_table[$ctr][3] = $i->[3];
+	$merged_table[$ctr][4] = $i->[4];
+	$merged_table[$ctr][5] = $i->[5];
+	$merged_table[$ctr][6] = $i->[6];
+	$merged_table[$ctr][7] = $j;
+	
+	#in order to store only >= 0 values
+	if($i->[6]-$j > -1) {
+		$merged_table[$ctr][8] = $i->[6] - $j;
+	}
+	else{
+		$merged_table[$ctr][8] = 0;
+	}
+	
+	$merged_table[$ctr++][9] = $i->[7];
+
+}
+
+
+#sort @merged_table on difference
+#fam1, fam1-count, fam1-avglen, fam2, fam2-count, fam2-avglen, Occurence, Noise, Difference, Category
+@temp = sort {$b->[8] <=> $a->[8]} @merged_table;
+@merged_table=@temp;
+
+#print to file
+print OUTFILEDATA "\#fam1, fam1-count, fam1-avglen, fam2, fam2-count, fam2-avglen, Occurence, Noise, Difference, Category\n";
+foreach $i (@merged_table){
+	print OUTFILEDATA "$i->[0]\t$i->[1]\t$i->[2]\t$i->[3]\t$i->[4]\t$i->[5]\t$i->[6]\t";
+	print OUTFILEDATA "$i->[7]\t$i->[8]\t$i->[9]\n";
+}
+
+close (INFILEREALDATA);
+close (INFILENOISEDATA);
+close (OUTFILEDATA);
+
+exit;
