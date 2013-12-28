@@ -3,7 +3,7 @@
 <p><h4>PIPELINE</h4>
 <ol>
 <li>miner.gff/out2noise.v1.pl : Create 5 noise OUT files using the real OUT file of RM</li>
-<li>miner.gff/out2f_itemsets.vX.pl : Reads in the OUT file of RM wt RS library and prints out the frequent itemsets and the copy/cluster information for each relationship. Do this for the real OUT fle and the 5 noise OUT files
+<li>miner.gff/out2f_itemsets.vX.pl : Reads in the OUT file of RM wt RS library and prints out the frequent itemsets and the copy/cluster information for each relationship. Do this for the real OUT file and the 5 noise OUT files
 <ul>
 <li>miner.merge_ALL_f_itemsets.v3.pl : Merge all the f_itemset files to create merged f_itemsets file and a stats file</li>
 <li>miner.merge_ALL_f_itemsets.stage1.v1.multi.pl : Merge the original f_itemset and any number of noise f_itemset files to create merged f_itemsets file and a stats file</li>
@@ -21,3 +21,9 @@
 <li>replicate.sh : Creates any number of noise files and finds the relationships</li>
 <li>miner.ucsctable2gff.v1.pl : converts ucsc table to gff2 format</li>
 </ol></p>
+<p><h5>Glossary</h5>
+<ul>
+<li>RM: RepeatMasker</li>
+<li>RMRB: RepeatMasker with RepBase library</li>
+<li>OUT: RepeatMasker OUT file</li>
+</ul>
