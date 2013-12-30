@@ -3,8 +3,8 @@
 # Surya Saha 4/24/07
 # reading cmd line input .out file which is sorted on the start position
 # and translate to GFF file
-# GFF v 2.0 fields are: 
-# <seqname> <source> <feature> <start> <end> <score> <strand> <frame> [attributes] [comments]
+# GFF v 3.0 fields are: 
+# <seqname> <source> <feature> <start> <end> <score> <strand> <frame> [attributes,ID/Name/Parent/Note etc] [comments]
 
 #226 29.3  0.0  0.0 chr12|12012              10808     10865 27486349 +  R=112           Unknown               1      58     (0)
 #241 26.3  0.0  0.0 chr12|12012              10836     10892 27486322 C  R=112           Unknown             (0)      58       2
@@ -12,19 +12,19 @@
 #1108  9.5  0.0  1.4 chr12|12012              10966     11115 27486099 C  R=688           Unknown             (0)     148       1
 
 # v1: 
-# v2: 4/29/07
-# v2: print out the strand information also 
+# v2: added in cmd line param for src 5/27/08
+# v3: updated to GFF 3.0 to handle the attribute field
 
 use strict;
 use warnings;
 use POSIX;
 
-unless (@ARGV == 2){
-	print "USAGE: $0 <input .out file> <region (e.g. chr12)>\n";
+unless (@ARGV == 3){
+	print "USAGE: $0 <input .out file> <region (e.g. chr12)> <source (e.g. RptSct-1.0.2)>\n";
 	exit;
 }
 
-my ($ifname,$region,$rec,@temp,@table,$tot_recs,$i,$ctr,$user_t,$system_t,$cuser_t,$csystem_t);
+my ($ifname,$region,$rec,$src,@temp,@table,$tot_recs,$i,$ctr,$user_t,$system_t,$cuser_t,$csystem_t);
 
 $ifname=$ARGV[0];
 chomp $ifname;
@@ -32,17 +32,16 @@ unless(open(INFILEDATA,$ifname)){print "not able to open ".$ifname."\n\n";exit;}
 unless(open(OUTFILEDATA,">$ifname.gff")){print "not able to open $ifname.gff \n\n";exit;}
 $region=$ARGV[1];
 chomp $region;
-
-print OUTFILEDATA "\##gff-version 2\n";
-print OUTFILEDATA "\# v2 4/29/07\n";
-print OUTFILEDATA "\# Assuming repeat finder is : RptSct-1.0.1\n";
+$src=$ARGV[2];
+chomp $src;
+print OUTFILEDATA "\##gff-version 3\n";
+print OUTFILEDATA "\# v 6/10/08\n";
 
 
 #slurping in the whole report file
 $ctr=0;
 while($rec=<INFILEDATA>){
-	if($rec =~ /#/){next;}
-	if(length ($rec) < 10){next;}#for avoiding last line
+	if($rec =~ /#/ or $rec =~ /SW/ or $rec =~ /score/ or length ($rec) < 10){next;}#for avoiding last line
 	push @table, [split(' ',$rec)];
 	$ctr++;
 }
@@ -61,20 +60,20 @@ print OUTFILEDATA "\# <seqname> <source> <feature> <start> <end> <score> <strand
 #0    1     2    3   4     5     6    7        8  9     10      11  12    13
 
 #sorting @table on family name
-@temp = sort {$a->[9] cmp $b->[9]} @table;
-@table=@temp;
+#WHY??????????????
+# @temp = sort {$a->[9] cmp $b->[9]} @table;
+# @table=@temp;
 
 # GFF fields are: <seqname> <source> <feature> <start> <end> <score> <strand> <frame> [attributes] [comments]
 # printing to GFF format
 foreach $i (@table){
-	print OUTFILEDATA "$region\tRptSct-1.0.1\trepeat_unit\t$i->[5]\t$i->[6]\t$i->[0]\t";
+	print OUTFILEDATA "$region\t$src\trepeat_region\t$i->[5]\t$i->[6]\t$i->[0]\t";
 	if ($i->[8] eq 'C'){
-		print OUTFILEDATA "\-\t.\tRepeat family $i->[9]\n";
+		print OUTFILEDATA "\-\t.\t$i->[9]\n";
 	}
 	else{
-		print OUTFILEDATA "\+\t.\tRepeat family $i->[9]\n";
+		print OUTFILEDATA "\+\t.\t$i->[9]\n";
 	}
-
 }
 
 
@@ -89,5 +88,7 @@ print  OUTFILEDATA "\# User time for process: $user_t\n";
 
 close (INFILEDATA);
 close (OUTFILEDATA);
+
+print STDERR "Presuming feature is repeat_region (includes repeat_fragment/unit/component,dispersed_repeat etc.)\n";
 
 exit;
