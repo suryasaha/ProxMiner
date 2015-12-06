@@ -4,13 +4,13 @@
 <ol>
 <li>Run RS on query sequence. Run RM with repeat library constructed by RS on query sequence.</li> 
 <li>miner.gff/out2noise.v1.pl: Create 5 noise OUT files using the query OUT file of RM</li>
-<li>miner.gff/out2f_itemsets.vX.pl: Reads in the OUT file of RM wt RS library and prints out the frequent itemsets and the copy/cluster information for each relationship. Do this for the query OUT file and the 5 noise OUT files</li>
+<li>miner.gff/out2f_itemsets.stage1.vX.pl: Reads in the OUT file of RM wt RS library and prints out the frequent itemsets and the copy/cluster information for each relationship. Do this for the query OUT file and the 5 noise OUT files</li>
 <li>Merge f_itemsets from query sequence and background noise sets 
 <ul>
-<li>miner.merge_ALL_f_itemsets.v3.pl: Merge all the f_itemset files to create merged f_itemsets file and a stats file</li>
+<li>miner.merge_ALL_f_itemsets.stage1.v1.pl: Merge all the 5 noise and 1 real f_itemset files to create merged f_itemsets file and a stats file</li>
 <li>miner.merge_ALL_f_itemsets.stage1.v1.multi.pl: Merge the query f_itemset and any number of noise f_itemset files to create merged f_itemsets file and a stats file</li>
 </ul>
-<li>miner.graph.stage1.v5.pl: Produce connected components using the merged f_itemsets file and RMRB annotations.</li>
+<li>miner.graph.stage1.v7.pl: Produce connected components using the merged f_itemsets file and RMRB annotations.</li>
 </li>
 </ol>
 </p>
