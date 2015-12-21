@@ -65,6 +65,8 @@ use Graph::Directed;
 
 unless (@ARGV == 10){
 	print "USAGE: $0 <merged.f_itemsets file> <summ or -nosumm> <chr fasta file> <Conf threshold> <GFF file> <-clusters or -noclusters> <-graphviz or nographviz> <-flankseq or -noflankseq> <range> <repeat library file>\n";
+	print "SUMM Summary file is created from the .OUT file when RMRB is run on the repeat library discovered by RS\n";
+	print "GFF is the GFF from RMRB run on the chr fasta sequence so that RB repeats can be clustered with RS repeats in connected components\n";
 	exit;
 }
 
@@ -77,7 +79,7 @@ sub round2{
 	$num=$num/100;
 	return $num;
 }
-# get the complement
+# get the compliment
 sub comp{
 	my $DNA;
 	$DNA=$_[0];
@@ -791,7 +793,7 @@ foreach $i(@UD_conn_comp){
 			print OUTFILEHTML "\nExact &nbsp &nbsp &nbsp &nbsp &nbsp Start:$j->[0] &nbsp End:$j->[1] &nbsp \t",'<a href="http://rice.plantbiology.msu.edu/cgi-bin/gbrowse/rice?name=',$k,':',$j->[0],'..',$j->[1],'">TIGR</a>';
 			print OUTFILEHTML "\t",'<a href="http://130.18.208.245/cgi-bin/gbrowse/rice/?name=',$k,':',$j->[0],'..',$j->[1],'">CSE</a><br>';
 			$k=~ s/^C/c/;# Chr to chr makes GFF file work on TIGR gbrowse
-			print OUTFILEGBGFF "$k\tProxMiner\trepeat_unit\t$start\t$end\t.\t+\t.\tFam PMfam=",$ctr-1,"\n";
+			print OUTFILEGBGFF "$k\tProxMiner\trepeat_unit\t".$j->[0]."\t".$j->[1]."\t.\t+\t.\tFam PMfam=",$ctr-1,"\n";
 			$k=~ s/^c/C/;# chr to Chr makes display work on TIGR gbrowse
 
 			# with 1k flanking
@@ -888,7 +890,7 @@ foreach $i(@UD_conn_comp){
 			print OUTFILEHTML "\nExact &nbsp &nbsp &nbsp &nbsp &nbsp Start:$j->[0] &nbsp End:$j->[1] &nbsp \t",'<a href="http://rice.plantbiology.msu.edu/cgi-bin/gbrowse/rice?name=',$k,':',$j->[0],'..',$j->[1],'">TIGR</a>';
 			print OUTFILEHTML "\t",'<a href="http://130.18.208.245/cgi-bin/gbrowse/rice/?name=',$k,':',$j->[0],'..',$j->[1],'">CSE</a><br>';
 			$k=~ s/^C/c/;# Chr to chr makes GFF file work on TIGR gbrowse
-			print OUTFILEGBGFF "$k\tProxMiner\trepeat_unit\t$start\t$end\t.\t-\t.\tFam PMfam=",$ctr-1,"\n";
+			print OUTFILEGBGFF "$k\tProxMiner\trepeat_unit\t".$j-[0]."\t".$j->[1]."\t.\t-\t.\tFam PMfam=",$ctr-1,"\n";
 			$k=~ s/^c/C/;# chr to Chr makes display work on TIGR gbrowse
 			
 			# with 1k flanking
