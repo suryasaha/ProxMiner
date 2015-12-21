@@ -30,7 +30,6 @@ chomp $chr_len;
 
 
 unless(open(INFILEDATA,$ifname)){print "not able to open ".$ifname."\n\n";exit;}
-
 unless(open(OUTFILEDATA,">$ifname.noise.$index")){print "not able to open ".$ifname.".noise.$index \n\n";exit;}
 
 #@table
@@ -42,8 +41,10 @@ unless(open(OUTFILEDATA,">$ifname.noise.$index")){print "not able to open ".$ifn
 #and writing it out
 
 srand();
+
+#skipping header lines in new .OUT format
+for (1..3) { $rec=<INFILEDATA> }
 while($rec=<INFILEDATA>){
-	if($rec =~ /#/){next;}
 	if(length ($rec) < 2){next;}
 	
 	push @table, [split(' ',$rec)];
@@ -61,8 +62,6 @@ while($rec=<INFILEDATA>){
 foreach(@table){
 	print OUTFILEDATA "$_->[0]\t$_->[1]\t$_->[2]\t$_->[3]\t$_->[4]\t$_->[5]\t$_->[6]\t$_->[7]\t$_->[8]\t$_->[9]\t$_->[10]\t$_->[11]\t$_->[12]\t$_->[13]\n";
 }
-
-
 
 close (INFILEDATA);
 close (OUTFILEDATA);

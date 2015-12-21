@@ -29,7 +29,7 @@
 #   : downstream (positive) direction. See description for details.
 #   : Only 1 output file for combined pos and comp strand information.
 #   : Only 1 copy file for all elements involved in relationships from both strands.
-# NOTE: we can optimize this tool by looking only on the right for elelmets to form relationships with
+# NOTE: we can optimize this tool by looking only on the right for elemets to form relationships with
 
 # v3: fixed a bug (negative deviations were messing up the calculation of std dev)
 
@@ -85,7 +85,7 @@ chomp $MAX_RANGE;
 $ifname=$ARGV[1];
 chomp $ifname;
 unless(open(INFILEDATA,$ifname)){print "not able to open ".$ifname."\n\n";exit;}
-unless(open(OUTFILEDATA,">$ifname.f_itemsets.stg1.tab")){print "not able to open ".$ifname."f_itemsets.stg1.tab\n\n";exit;}
+unless(open(OUTFILEDATA,">$ifname.f_itemsets.stg1.out")){print "not able to open ".$ifname."f_itemsets.stg1.out\n\n";exit;}
 
 $copy_file_flag=$ARGV[2];
 chomp $copy_file_flag;
@@ -95,14 +95,14 @@ if($copy_file_flag eq "-nocop"){ $copy_file_flag=0;}
 elsif ($copy_file_flag eq "-cop"){ $copy_file_flag=1;}
 
 if($copy_file_flag){
-	unless(open(OUTFILECOPIES,">$ifname.copies.tab")){print "not able to open ".$ifname.".copies.tab \n\n";exit;}
+	unless(open(OUTFILECOPIES,">$ifname.f_itemsets.copies.out")){print "not able to open ".$ifname.".f_itemsets.copies.out \n\n";exit;}
 }
 
 
-# <BODY>
-
 # SLURPING IN THE WHOLE .OUT REPORT FILE
 $ctr=0;
+#skipping header lines in new .OUT format
+for (1..3) { $rec=<INFILEDATA> }
 while($rec=<INFILEDATA>){
 	if($rec =~ /#/){next;}
 	if(length ($rec) < 10){next;}#for avoiding last line
@@ -873,7 +873,7 @@ print STDERR "\# User time for process: ",ceil($user_t/60)," mins\n";
 # PRINTING  @copies 
 # @copies : fam1 rel fam2 Strand fam1_st fam1_end fam2_st fam2_end
 if($copy_file_flag){
-	print OUTFILECOPIES "#fam1\trel\tfam2\tstrand\tfam1-st\tf1-end\tf2-st\tf2-end\n";
+	print OUTFILECOPIES "#fam1\trel\tfam2\tstrand\tf1-st\tf1-end\tf2-st\tf2-end\n";
 	foreach $i (@pos_copies){
 		print OUTFILECOPIES "$i->[0]\t$i->[1]\t$i->[2]\t$i->[3]\t$i->[4]\t$i->[5]\t$i->[6]\t$i->[7]\n";
 	}
@@ -900,5 +900,3 @@ if($copy_file_flag){
 }
 
 exit;
-
-# </BODY>
