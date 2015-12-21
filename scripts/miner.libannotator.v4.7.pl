@@ -76,11 +76,47 @@ for (2..$#ARGV) {
 	unless(open(INFILECAT,$ifname2)){print "not able to open ".$ifname2."\n\n";exit;}
 	while($rec=<INFILECAT>){
 		$ifname2=$ARGV[$_];
+		
 		if($skipflag != 0 && $skipflag) {--$skipflag;next;}
 		if($rec =~ /^#/){next;}
+		
+		#to handle new CAT file format from
+        #        RepeatMasker version open-4.0.6 , sensitive mode
+        #        run with rmblastn version 2.2.27+
+        #        RepBase Update 20150807, RM database version 20150807	
+        #	    232 21.32 0.00 1.64 R=11 1 62 (1) tRNA-Ala-GCA#tRNA 1 61 (14) m_b1s502i0
+        #          R=11                   1 GGGGCTATAGCTCAGCTGGGAGAGCGCCTGCTTTGCAAGGAGGAGGTCTG 50
+        #                                       v i        -   v     i v         v viv    i iv
+        #          tRNA-Ala-GCA#          1 GGGGGTGTAGCTCAG-TGGTAGAGCACATGCTTTGCATGTGTGAGGCCCC 49
+
+        #          R=11                  51 CGGTTCGATCCC 62
+        #                                   v           
+        #          tRNA-Ala-GCA#         50 GGGTTCGATCCC 61
+
+        #        Matrix = 20p53g.matrix
+        #        Kimura (with divCpGMod) = 25.09
+        #        Transitions / transversions = 0.62 (5/8)
+        #        Gap_init rate = 0.02 (1 / 61), avg. gap size = 1.00 (1 / 1)
+
+        #        247 11.63 0.00 0.00 R=12 53 95 (1816) C SSU-rRNA_Hsa#rRNA (3) 1866 1824 m_b1s551i0
+
+        #          R=12                  53 TGATCCAACCGCAGGTTCCCCTACGGTTACCTTGTTACGACTT 95
+        #                                         vv          v       vv               
+        #        C SSU-rRNA_Hsa#       1866 TGATCCTTCCGCAGGTTCACCTACGGAAACCTTGTTACGACTT 1824
+
+        #        Matrix = 20p53g.matrix
+        #        Kimura (with divCpGMod) = 12.80
+        #        Transitions / transversions = 0.00 (0/5)
+        #        Gap_init rate = 0.00 (0 / 42), avg. gap size = 0.0 (0 / 0)
+
+		if( !($rec =~ m/^[1-9]/) ){ next;}
+		
+        #Old format was from  
 		# RepeatMasker version open-3.1.6 , sensitive mode
 		# run with blastp version 2.0MP-WashU
 		# RepBase Update 20061006, RM database version 20061006
+		
+		
 		if ($rec=~ /RepeatMasker/){$skipflag=2; next;}
 	
 		if(length ($rec) < 10){next;}#for avoiding last line
